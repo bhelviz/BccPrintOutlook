@@ -1,0 +1,51 @@
+Sub PrintPreview()
+    Dim objItem As Object
+    Dim objProp As Outlook.UserProperty
+    On Error Resume Next
+    
+   
+    ' uses the GetCurrentItem function
+    ' from http://www.outlookcode.com/codedetail.aspx?id=50
+    Set objItem = GetCurrentItem()
+    If objItem.MessageClass = "IPM.Note" Then
+        Set objProp = objItem.UserProperties("Bcc ")
+        
+        'Set objProp = objItem.UserProperties.Remove("Bcc List ", olText, True)
+        
+        If objProp Is Nothing Then
+            Set objProp = objItem.UserProperties.Add("Bcc ", olText)
+            
+        End If
+        
+        ' next statement will trigger security prompt in Outlook 2000 & 2002
+        ' consider using Redemption from http://www.dimastr.com/redemption/
+        
+        
+      
+        objProp.Value = objItem.Bcc
+        SendKeys "%(F)"
+        SendKeys "P"
+        'objItem.PrintOut
+    End If
+     
+    Set objItem = Nothing
+    Set objProp = Nothing
+End Sub
+Function GetCurrentItem() As Object
+    Dim objApp As Outlook.Application
+         
+    Set objApp = CreateObject("Outlook.Application")
+    On Error Resume Next
+    Select Case TypeName(objApp.ActiveWindow)
+        Case "Explorer"
+            Set GetCurrentItem = objApp.ActiveExplorer.Selection.Item(1)
+        Case "Inspector"
+            Set GetCurrentItem = objApp.ActiveInspector.CurrentItem
+        Case Else
+            ' anything else will result in an error, which is
+            ' why we have the error handler above
+    End Select
+     
+    Set objApp = Nothing
+End Function
+
